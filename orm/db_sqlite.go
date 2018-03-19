@@ -29,6 +29,8 @@ var sqliteOperators = map[string]string{
 	"gte":         ">= ?",
 	"lt":          "< ?",
 	"lte":         "<= ?",
+	"eq":          "= ?",
+	"ne":          "!= ?",
 	"startswith":  "LIKE ? ESCAPE '\\'",
 	"endswith":    "LIKE ? ESCAPE '\\'",
 	"istartswith": "LIKE ? ESCAPE '\\'",
@@ -41,6 +43,7 @@ var sqliteTypes = map[string]string{
 	"pk":              "NOT NULL PRIMARY KEY",
 	"bool":            "bool",
 	"string":          "varchar(%d)",
+	"string-char":     "character(%d)",
 	"string-text":     "text",
 	"time.Time-date":  "date",
 	"time.Time":       "datetime",
@@ -64,7 +67,7 @@ type dbBaseSqlite struct {
 var _ dbBaser = new(dbBaseSqlite)
 
 // get sqlite operator.
-func (d *dbBaseSqlite) OperatorSql(operator string) string {
+func (d *dbBaseSqlite) OperatorSQL(operator string) string {
 	return sqliteOperators[operator]
 }
 
@@ -132,7 +135,7 @@ func (d *dbBaseSqlite) IndexExists(db dbQuerier, table string, name string) bool
 	defer rows.Close()
 	for rows.Next() {
 		var tmp, index sql.NullString
-		rows.Scan(&tmp, &index, &tmp)
+		rows.Scan(&tmp, &index, &tmp, &tmp, &tmp)
 		if name == index.String {
 			return true
 		}
